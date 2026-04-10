@@ -1,0 +1,9 @@
+path: C:/Users/samue/Documents/USCO/8Semestre/vision/dataset_final
+
+train: train/images
+val: val/images
+
+names:
+  0: Echinochloa_colona_dataset_augmented
+  1: Fimbristylis_littoralis_dataset_augmented
+  2: Cyperus_difformis_dataset_augmented
