@@ -1,6 +1,4 @@
 import os
-
-# DEBE ir antes de cualquier import de torch/ultralytics
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 import logging
@@ -52,7 +50,6 @@ def main():
         imgsz=img_size,
         project="runs",
         name="experimento",
-        lrf=0.01,
         optimizer="SGD",
         warmup_epochs=3,
         warmup_momentum=0.8,
@@ -61,14 +58,15 @@ def main():
         workers=0,
         cache=False,
         resume=True,
+        lr0=0.001,          
+        lrf=0.1,    
     )
 
     last_error = None
     for i, attempt_batch in enumerate(attempt_batches, start=1):
-        lr0 = scale_learning_rate(attempt_batch)
-        logger.info(f"Intento {i}/{len(attempt_batches)} → batch={attempt_batch} | lr0={lr0}")
+        logger.info(f"Intento {i}/{len(attempt_batches)} → batch={attempt_batch} | lr0={base_kwargs['lr0']}")
         try:
-            model.train(**base_kwargs, batch=attempt_batch, lr0=lr0)
+            model.train(**base_kwargs, batch=attempt_batch)
             logger.info("Entrenamiento completado correctamente.")
             return
         except RuntimeError as e:
