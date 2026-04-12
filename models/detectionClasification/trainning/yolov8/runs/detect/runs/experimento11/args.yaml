@@ -1,7 +1,7 @@
 task: detect
 mode: train
-model: ./runs/detect/runs/experimento10/weights/best.pt
-data: ../../../../config/data.yaml
+model: runs\detect\runs\experimento11\weights\best.pt
+data: ..\..\..\..\config\data.yaml
 epochs: 101
 time: null
 patience: 100
@@ -24,7 +24,7 @@ single_cls: false
 rect: false
 cos_lr: false
 close_mosaic: 10
-resume: false
+resume: runs\detect\runs\experimento11\weights\best.pt
 amp: false
 fraction: 1.0
 profile: false
