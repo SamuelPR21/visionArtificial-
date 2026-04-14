@@ -39,6 +39,7 @@ def main():
     model = YOLO(model_name)
 
     batch_size = resolve_batch_size(model, img_size)
+
     attempt_batches = []
     for b in (batch_size, max(8, batch_size // 2)):
         if b not in attempt_batches:
@@ -54,29 +55,43 @@ def main():
         warmup_epochs=3,
         warmup_momentum=0.8,
         warmup_bias_lr=0.1,
-        amp=False,          
+        amp=False,
         workers=0,
         cache=False,
         resume=True,
-        lr0=0.001,          
-        lrf=0.1,    
+        lrf=0.1,
     )
 
     last_error = None
+
     for i, attempt_batch in enumerate(attempt_batches, start=1):
-        logger.info(f"Intento {i}/{len(attempt_batches)} → batch={attempt_batch} | lr0={base_kwargs['lr0']}")
+
+        # 🔥 AQUÍ ESTÁ LA CLAVE
+        lr0 = scale_learning_rate(attempt_batch)
+
+        logger.info(
+            f"Intento {i}/{len(attempt_batches)} → batch={attempt_batch} | lr0={lr0}"
+        )
+
         try:
-            model.train(**base_kwargs, batch=attempt_batch)
+            model.train(
+                **base_kwargs,
+                batch=attempt_batch,
+                lr0=lr0   # ✅ ahora sí usas tu LR dinámico
+            )
             logger.info("Entrenamiento completado correctamente.")
             return
+
         except RuntimeError as e:
             if not _is_memory_error(e):
                 raise
+
             last_error = e
             logger.warning(
                 f"Fallo por memoria en intento {i} (batch={attempt_batch}). "
                 "Liberando caché CUDA."
             )
+
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
